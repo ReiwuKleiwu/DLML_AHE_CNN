@@ -4,23 +4,10 @@ from keras.src.legacy.preprocessing.image import ImageDataGenerator
 
 from classes.DataLoader import DataLoader
 from classes.ModelBuilder import ModelBuilder
+from classes.ModelPredictor import ModelPredictor
 from classes.ModelTrainer import ModelTrainer
 from classes.ModelEvaluator import ModelEvaluator
 from classes.ModelVisualizer import ModelVisualizer
-
-
-architectural_heritage_elements_classes = {
-    0: 'altar',
-    1: 'apse',
-    2: 'bell_tower',
-    3: 'column',
-    4: 'dome(inner)',
-    5: 'dome(outer)',
-    6: 'flying_buttress',
-    7: 'gargoyle',
-    8: 'stained_glass',
-    9: 'vault'
-}
 
 
 class AHERecognizer:
@@ -64,13 +51,10 @@ class AHERecognizer:
 
     def predict_image(self, model, image_path):
         input_arr = self.data_loader.load_image_as_array(image_path)
+        model_predictor = ModelPredictor(model)
+        cls, prob = model_predictor.predict(input_arr)
 
-        prediction = model.predict(input_arr)
-
-        # Print certainty of prediction
-        print(f'Prediction certainty: {(prediction[0][np.argmax(prediction)]) * 100:.2f}%')
-        prediction = np.argmax(prediction)
-        return architectural_heritage_elements_classes[prediction]
+        print(f'Prediction: {cls} ({prob * 100:.2f}%)')
 
     def visualize_feature_maps(self, model, image_path):
         img_arr = self.data_loader.load_image_as_array(image_path)
