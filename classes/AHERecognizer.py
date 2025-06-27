@@ -1,11 +1,12 @@
 import numpy as np
 import tensorflow as tf
 from keras.src.legacy.preprocessing.image import ImageDataGenerator
+from sklearn.metrics import classification_report
 
 from classes.DataLoader import DataLoader
 from classes.HyperparameterTuner import HyperparameterTuner
 from classes.ModelBuilder import ModelBuilder
-from classes.ModelPredictor import ModelPredictor
+from classes.ModelPredictor import ModelPredictor, architectural_heritage_elements_classes
 from classes.ModelTrainer import ModelTrainer
 from classes.ModelEvaluator import ModelEvaluator
 from classes.ModelVisualizer import ModelVisualizer
@@ -66,6 +67,14 @@ class AHERecognizer:
         img_arr = self.data_loader.load_image_as_array(image_path)
         model_visualizer = ModelVisualizer(model)
         model_visualizer.visualize_class_activation_maps(img_arr)
+
+    def classification_report(self, model):
+        X_val = self.valid_rgb['X']
+        y_val = self.valid_rgb['Y']
+
+        y_pred_probs = model.predict(X_val)
+        y_pred = np.argmax(y_pred_probs, axis=1)
+        print(classification_report(y_val, y_pred, target_names=list(architectural_heritage_elements_classes.values())))
 
     def tune_model(self, n_trials):
         tuner = HyperparameterTuner(
