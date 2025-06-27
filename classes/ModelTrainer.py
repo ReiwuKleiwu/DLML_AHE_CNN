@@ -1,5 +1,8 @@
 import tensorflow as tf
 
+from classes.HistoryVisualizer import HistoryVisualizer
+
+
 class ModelTrainer:
     def __init__(self, model, train_data, valid_data):
         self.model = model
@@ -9,7 +12,7 @@ class ModelTrainer:
     def train(self, batch_size=128, epochs=100):
         early_stop = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=10, verbose=0, mode='min')
 
-        self.model.fit(
+        history = self.model.fit(
             x=self.train_data['X'],
             y=self.train_data['Y'],
             batch_size=batch_size,
@@ -18,4 +21,8 @@ class ModelTrainer:
             validation_data=(self.valid_data['X'], self.valid_data['Y']),
             callbacks=[early_stop]
         )
+
+        visualizer = HistoryVisualizer()
+        visualizer.visualize_history(history.history)
+
         return self.model
