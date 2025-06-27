@@ -7,43 +7,45 @@ class ModelBuilder:
         self.num_classes = num_classes
 
     def create_fnn(self):
-        model = models.Sequential()
-        model.add(layers.Input(shape=self.input_shape))
-        model.add(layers.Flatten())
-        model.add(layers.Dense(512, activation='relu'))
-        model.add(layers.Dense(512, activation='relu'))
-        model.add(layers.Dense(512, activation='relu'))
-        model.add(layers.Dense(self.num_classes, activation='softmax'))
+        inputs = layers.Input(shape=self.input_shape)
+        x = layers.Flatten()(inputs)
+        x = layers.Dense(512, activation='relu')(x)
+        x = layers.Dense(512, activation='relu')(x)
+        x = layers.Dense(512, activation='relu')(x)
+        outputs = layers.Dense(self.num_classes, activation='softmax')(x)
+        model = models.Model(inputs=inputs, outputs=outputs)
         model.compile(optimizer='Adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
         return model
 
     def create_cnn(self):
-        model = models.Sequential()
+        inputs = layers.Input(shape=self.input_shape)
 
-        model.add(layers.Conv2D(32, (3, 3), activation='relu', input_shape=(64, 64, 3), padding="same"))
+        x = layers.Conv2D(32, (3, 3), activation='relu', padding="same")(inputs)
 
-        model.add(layers.Conv2D(32, (3, 3), activation='relu'))
-        model.add(layers.MaxPooling2D(pool_size=(2, 2)))
-        model.add(layers.Dropout(0.2))
+        x = layers.Conv2D(32, (3, 3), activation='relu')(x)
+        x = layers.MaxPooling2D(pool_size=(2, 2))(x)
+        x = layers.Dropout(0.2)(x)
 
-        model.add(layers.Conv2D(64, (3, 3), activation='relu', padding="same"))
+        x = layers.Conv2D(64, (3, 3), activation='relu', padding="same")(x)
 
-        model.add(layers.Conv2D(64, (3, 3), activation='relu'))
-        model.add(layers.MaxPooling2D(pool_size=(2, 2)))
-        model.add(layers.Dropout(0.2))
+        x = layers.Conv2D(64, (3, 3), activation='relu')(x)
+        x = layers.MaxPooling2D(pool_size=(2, 2))(x)
+        x = layers.Dropout(0.2)(x)
 
-        model.add(layers.Conv2D(128, (3, 3), activation='relu', padding="same"))
+        x = layers.Conv2D(128, (3, 3), activation='relu', padding="same")(x)
 
-        model.add(layers.Conv2D(128, (3, 3), activation='relu'))
-        model.add(layers.MaxPooling2D(pool_size=(2, 2)))
-        model.add(layers.Dropout(0.2))
+        x = layers.Conv2D(128, (3, 3), activation='relu')(x)
+        x = layers.MaxPooling2D(pool_size=(2, 2))(x)
+        x = layers.Dropout(0.2)(x)
 
-        model.add(layers.Flatten())
+        x = layers.Flatten()(x)
 
-        model.add(layers.Dense(512, activation="relu"))
-        model.add(layers.Dropout(0.5))
+        x = layers.Dense(512, activation="relu")(x)
+        x = layers.Dropout(0.5)(x)
 
-        model.add(layers.Dense(10, activation="softmax"))
+        outputs = layers.Dense(10, activation="softmax")(x)
+
+        model = models.Model(inputs=inputs, outputs=outputs)
 
         model.compile(optimizer='Adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
         return model
