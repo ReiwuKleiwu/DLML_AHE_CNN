@@ -1,5 +1,6 @@
 from matplotlib import pyplot as plt
 from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Conv2D
 from tf_keras_vis.gradcam import Gradcam
 from tf_keras_vis.utils.model_modifiers import ReplaceToLinear
 from tf_keras_vis.utils.scores import CategoricalScore
@@ -9,6 +10,12 @@ class ModelVisualizer:
     def __init__(self, model):
         self.model = model
 
+    def __find_first_conv2d_layer_index(self, model):
+        for i, layer in enumerate(model.layers):
+            if isinstance(layer, Conv2D):
+                return i
+        return -1
+
     def visualize_feature_maps(self, img_arr):
         # Create a modified model that outputs the activation of every layer
         layer_outputs = [layer.output for layer in self.model.layers]
@@ -17,7 +24,7 @@ class ModelVisualizer:
 
         activations = activation_model.predict(img_arr)
 
-        layer_activation = activations[1] # The first CNN layer
+        layer_activation = activations[self.__find_first_conv2d_layer_index(self.model)] # The first CNN layer
         print(layer_activation.shape)
         num_filters = layer_activation.shape[-1]
 
