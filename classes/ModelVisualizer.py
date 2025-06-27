@@ -31,7 +31,7 @@ class ModelVisualizer:
     def visualize_class_activation_maps(self, img_arr):
         score = CategoricalScore([5])
         gradcam = Gradcam(self.model, model_modifier=ReplaceToLinear(), clone=True)
-        cam = gradcam(score, img_arr, penultimate_layer='last_conv')
+        cam = gradcam(score, img_arr, penultimate_layer='conv2d')
         heatmap = cam[0]
         plt.imshow(img_arr[0], cmap='gray')
         plt.imshow(heatmap, cmap='jet', alpha=0.5)
