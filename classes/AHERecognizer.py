@@ -61,6 +61,11 @@ class AHERecognizer:
         model_visualizer = ModelVisualizer(model)
         model_visualizer.visualize_feature_maps(img_arr)
 
+    def visualize_class_activation_maps(self, model, image_path):
+        img_arr = self.data_loader.load_image_as_array(image_path)
+        model_visualizer = ModelVisualizer(model)
+        model_visualizer.visualize_class_activation_maps(img_arr)
+
     def evaluate_with_augmentation(self, model_path):
         datagen = ImageDataGenerator(
             rotation_range=10,
