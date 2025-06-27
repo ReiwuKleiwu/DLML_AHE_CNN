@@ -19,6 +19,7 @@ architectural_heritage_elements_classes_mapping = {
     'vault': 9
 }
 
+
 class DataLoader:
     def __init__(self, training_path, valid_path, input_shape):
         self.training_path = training_path
@@ -37,7 +38,7 @@ class DataLoader:
                 img_array = np.array(img)
 
                 if img_array.shape != self.input_shape:
-                    print(f"Fehler beim Bild {file}: {img_array.shape}")
+                    print(f'Fehler beim Bild {file}: {img_array.shape}')
                     continue
 
                 images.append(img_array)
@@ -51,7 +52,7 @@ class DataLoader:
         test_data_images, test_data_labels = self.load_images_from_folder(base_folder)
 
         with open(out_file, 'wb') as f:
-           pickle.dump({"images": test_data_images, "labels": test_data_labels}, f)
+            pickle.dump({'images': test_data_images, 'labels': test_data_labels}, f)
 
     def load_data(self):
         with open(self.training_path, mode='rb') as training_data:
@@ -82,6 +83,6 @@ class DataLoader:
             interpolation='bilinear'
         )
         img_arr = image.img_to_array(img)
-        img_arr = img_arr.astype('float32') / 255. # Normalize the input
-        img_arr = np.expand_dims(img_arr, axis=0) # Transform image into required batch format
+        img_arr = img_arr.astype('float32') / 255.  # Normalize the input
+        img_arr = np.expand_dims(img_arr, axis=0)  # Transform image into required batch format
         return img_arr

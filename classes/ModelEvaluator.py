@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
-from tensorflow.keras import datasets, layers, models
 from sklearn.metrics import confusion_matrix
 
 

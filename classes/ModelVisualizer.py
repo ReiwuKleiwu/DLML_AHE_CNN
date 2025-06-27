@@ -20,11 +20,12 @@ class ModelVisualizer:
         # Create a modified model that outputs the activation of every layer
         layer_outputs = [layer.output for layer in self.model.layers]
         # activation_model = Model(inputs=self.model.layers[0].input, outputs=layer_outputs) # Needed for sequential models
-        activation_model = Model(inputs=self.model.input, outputs=layer_outputs) # Use this for functional syntax models
+        activation_model = Model(inputs=self.model.input,
+                                 outputs=layer_outputs)  # Use this for functional syntax models
 
         activations = activation_model.predict(img_arr)
 
-        layer_activation = activations[self.__find_first_conv2d_layer_index(self.model)] # The first CNN layer
+        layer_activation = activations[self.__find_first_conv2d_layer_index(self.model)]  # The first CNN layer
         print(layer_activation.shape)
         num_filters = layer_activation.shape[-1]
 

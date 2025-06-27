@@ -1,5 +1,4 @@
 import numpy as np
-from tensorflow.keras.preprocessing import image
 
 architectural_heritage_elements_classes = {
     0: 'altar',
@@ -13,6 +12,7 @@ architectural_heritage_elements_classes = {
     8: 'stained_glass',
     9: 'vault'
 }
+
 
 class ModelPredictor:
     def __init__(self, model):

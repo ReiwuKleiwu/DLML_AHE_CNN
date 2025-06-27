@@ -12,7 +12,7 @@ class HyperparameterTuner:
         self._configure_gpu()
 
     def _configure_gpu(self):
-        print("Setting up GPUs...")
+        print('Setting up GPUs...')
         gpus = tf.config.experimental.list_physical_devices('GPU')
         if gpus:
             try:
@@ -23,10 +23,10 @@ class HyperparameterTuner:
             except RuntimeError as e:
                 print(e)
         else:
-            print("No GPUs available, using CPU instead!")
+            print('No GPUs available, using CPU instead!')
 
     def objective(self, trial):
-        print("Creating new Model...")
+        print('Creating new Model...')
         model = models.Sequential()
 
         num_conv_layers = trial.suggest_int('num_conv_layers', 1, 10)
@@ -44,7 +44,7 @@ class HyperparameterTuner:
         # Dynamisch Layer hinzufügen
         current_input_shape = (self.input_shape // 2,
                                self.input_shape // 2)  # Initial input shape after the first max pooling
-        print(f"Adding {num_conv_layers} convolutional layers with {num_filters} filters...")
+        print(f'Adding {num_conv_layers} convolutional layers with {num_filters} filters...')
         for i in range(num_conv_layers - 1):
             model.add(layers.Conv2D(num_filters, (filter_size, filter_size), activation='relu', padding='same'))
             model.add(layers.MaxPooling2D((2, 2)))
@@ -55,7 +55,7 @@ class HyperparameterTuner:
             # If input shape is too small, stop adding more layers
             if current_input_shape[0] < filter_size or current_input_shape[1] < filter_size:
                 print(
-                    f"Stopped adding layers (at layer {i + 1}) to prevent negative dimension size. Current input shape: {current_input_shape}")
+                    f'Stopped adding layers (at layer {i + 1}) to prevent negative dimension size. Current input shape: {current_input_shape}')
                 break
 
         model.add(layers.Flatten())
@@ -82,7 +82,7 @@ class HyperparameterTuner:
         loss, accuracy = model.evaluate(self.validation_data['X'], self.validation_data['Y'])
 
         model.save(
-            f'saved_model/optuna/best/model-{str(int(accuracy * 10000)).replace(".", "")}-{str(np.random.randint(0, 100000))}.keras')
+            f'saved_model/optuna/best/model-{str(int(accuracy * 10000)).replace('.', '')}-{str(np.random.randint(0, 100000))}.keras')
 
         return loss
 
@@ -94,24 +94,24 @@ class HyperparameterTuner:
         epoch_count = trial.suggest_int('epoch_count', 10, 50)
 
         print(
-            f"Training model with dense_units={dense_units}, dropout_rate={dropout_rate}, learning_rate={learning_rate}, batch_size={batch_size}, epoch_count={epoch_count}")
+            f'Training model with dense_units={dense_units}, dropout_rate={dropout_rate}, learning_rate={learning_rate}, batch_size={batch_size}, epoch_count={epoch_count}')
 
         model = models.Sequential()
 
         model.add(layers.Input(shape=self.input_shape))
-        model.add(layers.Conv2D(32, (3, 3), activation='relu', padding="same"))
+        model.add(layers.Conv2D(32, (3, 3), activation='relu', padding='same'))
 
         model.add(layers.Conv2D(32, (3, 3), activation='relu'))
         model.add(layers.MaxPooling2D(pool_size=(2, 2)))
         model.add(layers.Dropout(dropout_rate))
 
-        model.add(layers.Conv2D(64, (3, 3), activation='relu', padding="same"))
+        model.add(layers.Conv2D(64, (3, 3), activation='relu', padding='same'))
 
         model.add(layers.Conv2D(64, (3, 3), activation='relu'))
         model.add(layers.MaxPooling2D(pool_size=(2, 2)))
         model.add(layers.Dropout(dropout_rate))
 
-        model.add(layers.Conv2D(128, (3, 3), activation='relu', padding="same"))
+        model.add(layers.Conv2D(128, (3, 3), activation='relu', padding='same'))
 
         model.add(layers.Conv2D(128, (3, 3), activation='relu'))
         model.add(layers.MaxPooling2D(pool_size=(2, 2)))
@@ -119,10 +119,10 @@ class HyperparameterTuner:
 
         model.add(layers.Flatten())
 
-        model.add(layers.Dense(dense_units, activation="relu"))
+        model.add(layers.Dense(dense_units, activation='relu'))
         model.add(layers.Dropout(0.5))
 
-        model.add(layers.Dense(10, activation="softmax"))
+        model.add(layers.Dense(10, activation='softmax'))
 
         model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=learning_rate),
                       loss='sparse_categorical_crossentropy',
@@ -144,7 +144,7 @@ class HyperparameterTuner:
 
         if accuracy >= 0.99:
             model.save(
-                f'saved_model/optuna/best/model-{str(int(accuracy * 10000)).replace(".", "")}-{str(np.random.randint(0, 100000))}.keras')
+                f'saved_model/optuna/best/model-{str(int(accuracy * 10000)).replace('.', '')}-{str(np.random.randint(0, 100000))}.keras')
 
         print(f'Finished training, accuracy: {accuracy}')
         return loss
@@ -153,11 +153,11 @@ class HyperparameterTuner:
         study = optuna.create_study(direction='minimize')
         study.optimize(self.objective, n_trials=n_trials)
         print('*' * 100)
-        print("Number of finished trials: ", len(study.trials))
-        print("Best trial:")
+        print('Number of finished trials: ', len(study.trials))
+        print('Best trial:')
         trial = study.best_trial
-        print("Value:", trial.value)
-        print("Best Params:")
+        print('Value:', trial.value)
+        print('Best Params:')
         print(study.best_params)
         print('*' * 100)
 
