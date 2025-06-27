@@ -2,6 +2,7 @@ import tensorflow as tf
 import pickle
 from sklearn.utils import shuffle
 import numpy as np
+from tensorflow.keras.preprocessing import image
 
 
 class DataLoader:
@@ -30,3 +31,14 @@ class DataLoader:
         valid_greyscale = {'X': tf.image.rgb_to_grayscale(valid_rgb['X']), 'Y': y_valid}
 
         return training_rgb, valid_rgb, training_greyscale, valid_greyscale
+
+    def load_image_as_array(self, image_path):
+        img = image.load_img(
+            image_path,
+            target_size=(64, 64),
+            interpolation='bilinear'
+        )
+        img_arr = image.img_to_array(img)
+        img_arr = img_arr.astype('float32') / 255. # Normalize the input
+        img_arr = np.expand_dims(img_arr, axis=0) # Transform image into required batch format
+        return img_arr
