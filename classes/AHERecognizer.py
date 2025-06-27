@@ -1,11 +1,13 @@
 import numpy as np
+import tensorflow as tf
 from keras.src.legacy.preprocessing.image import ImageDataGenerator
 
 from classes.DataLoader import DataLoader
 from classes.ModelBuilder import ModelBuilder
 from classes.ModelTrainer import ModelTrainer
 from classes.ModelEvaluator import ModelEvaluator
-import tensorflow as tf
+from classes.ModelVisualizer import ModelVisualizer
+
 
 architectural_heritage_elements_classes = {
     0: 'altar',
@@ -51,6 +53,9 @@ class AHERecognizer:
         model.save(file_path)
         return file_path
 
+    def load_model(self, file_path):
+        return tf.keras.models.load_model(file_path)
+
     def evaluate_model(self, file_path, greyscale=False):
         eval_model = tf.keras.models.load_model(file_path)
         valid_data = self.valid_greyscale if greyscale else self.valid_rgb
@@ -58,14 +63,7 @@ class AHERecognizer:
         return evaluator.evaluate()
 
     def predict_image(self, model, image_path):
-        image = tf.keras.preprocessing.image.load_img(
-            image_path,
-            target_size=(64, 64),
-            interpolation='bilinear'
-        )
-        input_arr = tf.keras.preprocessing.image.img_to_array(image)
-        input_arr = np.array([input_arr])  # Convert single image to a batch.
-        input_arr = input_arr.astype('float32') / 255.  # This is VERY important
+        input_arr = self.data_loader.load_image_as_array(image_path)
 
         prediction = model.predict(input_arr)
 
@@ -73,6 +71,11 @@ class AHERecognizer:
         print(f'Prediction certainty: {(prediction[0][np.argmax(prediction)]) * 100:.2f}%')
         prediction = np.argmax(prediction)
         return architectural_heritage_elements_classes[prediction]
+
+    def visualize_feature_maps(self, model, image_path):
+        img_arr = self.data_loader.load_image_as_array(image_path)
+        model_visualizer = ModelVisualizer(model)
+        model_visualizer.visualize_feature_maps(img_arr)
 
     def evaluate_with_augmentation(self, model_path):
         datagen = ImageDataGenerator(
