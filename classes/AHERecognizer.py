@@ -3,6 +3,7 @@ import tensorflow as tf
 from keras.src.legacy.preprocessing.image import ImageDataGenerator
 
 from classes.DataLoader import DataLoader
+from classes.HyperparameterTuner import HyperparameterTuner
 from classes.ModelBuilder import ModelBuilder
 from classes.ModelPredictor import ModelPredictor
 from classes.ModelTrainer import ModelTrainer
@@ -65,6 +66,13 @@ class AHERecognizer:
         img_arr = self.data_loader.load_image_as_array(image_path)
         model_visualizer = ModelVisualizer(model)
         model_visualizer.visualize_class_activation_maps(img_arr)
+
+    def tune_model(self, n_trials):
+        tuner = HyperparameterTuner(
+            self.training_rgb,
+            self.valid_rgb,
+        )
+        return tuner.tune(n_trials)
 
     def evaluate_with_augmentation(self, model_path):
         datagen = ImageDataGenerator(

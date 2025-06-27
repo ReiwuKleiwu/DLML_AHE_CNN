@@ -24,7 +24,6 @@ class HyperparameterTuner:
         else:
             print("No GPUs available, using CPU instead!")
 
-
     def objective(self, trial):
         print("Creating new Model...")
         model = models.Sequential()
@@ -36,12 +35,12 @@ class HyperparameterTuner:
         dropout_rate = trial.suggest_float('dropout_rate', 0.2, 0.5)
         learning_rate = trial.suggest_float('learning_rate', 1e-5, 1e-2, log=True)
 
-        model.add(layers.Conv2D(num_filters, (filter_size, filter_size), activation='relu', input_shape=(32, 32, 3),
+        model.add(layers.Conv2D(num_filters, (filter_size, filter_size), activation='relu', input_shape=(64, 64, 3),
                                 padding='same'))
         model.add(layers.MaxPooling2D((2, 2)))
 
         # Dynamisch Layer hinzufügen
-        current_input_shape = (32 // 2, 32 // 2)  # Initial input shape after the first max pooling
+        current_input_shape = (64 // 2, 64 // 2)  # Initial input shape after the first max pooling
         print(f"Adding {num_conv_layers} convolutional layers with {num_filters} filters...")
         for i in range(num_conv_layers - 1):
             model.add(layers.Conv2D(num_filters, (filter_size, filter_size), activation='relu', padding='same'))
@@ -65,17 +64,23 @@ class HyperparameterTuner:
                       loss='sparse_categorical_crossentropy',
                       metrics=['accuracy'])
 
+        early_stop = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=10, verbose=0, mode='min')
+
         history = model.fit(
             self.training_data['X'],
             self.training_data['Y'],
             epochs=30,
             batch_size=128,
             validation_data=(self.validation_data['X'], self.validation_data['Y']),
-            verbose=1
+            verbose=1,
+            callbacks=[early_stop]
         )
 
         loss, accuracy = model.evaluate(self.validation_data['X'], self.validation_data['Y'])
-        return accuracy
+
+        model.save(f'saved_model/optuna/best/model-{str(int(accuracy * 10000)).replace(".", "")}-{str(np.random.randint(0, 100000))}.keras')
+
+        return loss
 
     def objective_2(self, trial):
         dense_units = trial.suggest_int('dense_units', 450, 1024)
@@ -84,11 +89,12 @@ class HyperparameterTuner:
         batch_size = trial.suggest_categorical('batch_size', [32, 64, 128, 256])
         epoch_count = trial.suggest_int('epoch_count', 10, 50)
 
-        print(f"Training model with dense_units={dense_units}, dropout_rate={dropout_rate}, learning_rate={learning_rate}, batch_size={batch_size}, epoch_count={epoch_count}")
+        print(
+            f"Training model with dense_units={dense_units}, dropout_rate={dropout_rate}, learning_rate={learning_rate}, batch_size={batch_size}, epoch_count={epoch_count}")
 
         model = models.Sequential()
 
-        model.add(layers.Input(shape=(32, 32, 3)))
+        model.add(layers.Input(shape=(64, 64, 3)))
         model.add(layers.Conv2D(32, (3, 3), activation='relu', padding="same"))
 
         model.add(layers.Conv2D(32, (3, 3), activation='relu'))
@@ -112,7 +118,7 @@ class HyperparameterTuner:
         model.add(layers.Dense(dense_units, activation="relu"))
         model.add(layers.Dropout(0.5))
 
-        model.add(layers.Dense(43, activation="softmax"))
+        model.add(layers.Dense(10, activation="softmax"))
 
         model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=learning_rate),
                       loss='sparse_categorical_crossentropy',
@@ -133,13 +139,15 @@ class HyperparameterTuner:
         loss, accuracy = model.evaluate(self.validation_data['X'], self.validation_data['Y'])
 
         if accuracy >= 0.99:
-            model.save(f'saved_model/optuna/best/model-{str(int(accuracy * 10000)).replace(".", "")}-{str(np.random.randint(0, 100000))}.h5')
+            model.save(
+                f'saved_model/optuna/best/model-{str(int(accuracy * 10000)).replace(".", "")}-{str(np.random.randint(0, 100000))}.keras')
 
-        return accuracy
+        print(f'Finished training, accuracy: {accuracy}')
+        return loss
 
     def tune(self, n_trials=100):
-        study = optuna.create_study(direction='maximize')
-        study.optimize(self.objective_2, n_trials=n_trials)
+        study = optuna.create_study(direction='minimize')
+        study.optimize(self.objective, n_trials=n_trials)
         print('*' * 100)
         print("Number of finished trials: ", len(study.trials))
         print("Best trial:")
