@@ -3,4 +3,5 @@
   <component name="Black">
     <option name="sdkName" value="KI_Praktikum_2" />
   </component>
+  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.12 (DLML_AHE_CNN)" project-jdk-type="Python SDK" />
 </project>

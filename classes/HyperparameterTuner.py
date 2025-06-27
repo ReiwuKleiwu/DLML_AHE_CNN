@@ -2,7 +2,6 @@ import optuna
 from tensorflow.keras import datasets, layers, models
 import numpy as np
 import tensorflow as tf
-from sklearn.utils import shuffle
 
 
 class HyperparameterTuner:
@@ -89,7 +88,8 @@ class HyperparameterTuner:
 
         model = models.Sequential()
 
-        model.add(layers.Conv2D(32, (3, 3), activation='relu', input_shape=(32, 32, 3), padding="same"))
+        model.add(layers.Input(shape=(32, 32, 3)))
+        model.add(layers.Conv2D(32, (3, 3), activation='relu', padding="same"))
 
         model.add(layers.Conv2D(32, (3, 3), activation='relu'))
         model.add(layers.MaxPooling2D(pool_size=(2, 2)))

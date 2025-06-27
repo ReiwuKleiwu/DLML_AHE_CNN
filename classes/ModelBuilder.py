@@ -1,5 +1,4 @@
-from tensorflow.keras import datasets, layers, models
-import tensorflow as tf
+from tensorflow.keras import layers, models
 
 
 class ModelBuilder:
@@ -9,7 +8,8 @@ class ModelBuilder:
 
     def create_fnn(self):
         model = models.Sequential()
-        model.add(layers.Flatten(input_shape=self.input_shape))
+        model.add(layers.Input(shape=self.input_shape))
+        model.add(layers.Flatten())
         model.add(layers.Dense(512, activation='relu'))
         model.add(layers.Dense(512, activation='relu'))
         model.add(layers.Dense(512, activation='relu'))
