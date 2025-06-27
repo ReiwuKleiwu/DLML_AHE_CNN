@@ -5,10 +5,11 @@ import tensorflow as tf
 
 
 class HyperparameterTuner:
-    def __init__(self, training_data, validation_data, input_shape):
+    def __init__(self, training_data, validation_data, input_shape, num_classes):
         self.training_data = training_data
         self.validation_data = validation_data
         self.input_shape = input_shape
+        self.num_classes = num_classes
         self._configure_gpu()
 
     def _configure_gpu(self):
@@ -122,7 +123,7 @@ class HyperparameterTuner:
         model.add(layers.Dense(dense_units, activation='relu'))
         model.add(layers.Dropout(0.5))
 
-        model.add(layers.Dense(10, activation='softmax'))
+        model.add(layers.Dense(self.num_classes, activation='softmax'))
 
         model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=learning_rate),
                       loss='sparse_categorical_crossentropy',
