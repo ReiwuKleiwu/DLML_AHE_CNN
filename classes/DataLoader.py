@@ -3,12 +3,54 @@ import pickle
 from sklearn.utils import shuffle
 import numpy as np
 from tensorflow.keras.preprocessing import image
+import os
+from PIL import Image
 
+architectural_heritage_elements_classes_mapping = {
+    'altar': 0,
+    'apse': 1,
+    'bell_tower': 2,
+    'column': 3,
+    'dome(inner)': 4,
+    'dome(outer)': 5,
+    'flying_buttress': 6,
+    'gargoyle': 7,
+    'stained_glass': 8,
+    'vault': 9
+}
 
 class DataLoader:
     def __init__(self, training_path, valid_path):
         self.training_path = training_path
         self.valid_path = valid_path
+
+    def load_images_from_folder(self, base_folder):
+        images = []
+        labels = []
+
+        for subdir, dirs, files in os.walk(base_folder):
+            for file in files:
+                image_path = os.path.join(subdir, file)
+
+                img = Image.open(image_path)
+                img_array = np.array(img)
+
+                if img_array.shape != (64, 64, 3):
+                    print(f"Fehler beim Bild {file}: {img_array.shape}")
+                    continue
+
+                images.append(img_array)
+
+                label = os.path.basename(subdir)
+                labels.append(architectural_heritage_elements_classes_mapping[label])
+
+        return images, labels
+
+    def generate_pickle(self, base_folder, out_file):
+        test_data_images, test_data_labels = self.load_images_from_folder(base_folder)
+
+        with open(out_file, 'wb') as f:
+           pickle.dump({"images": test_data_images, "labels": test_data_labels}, f)
 
     def load_data(self):
         with open(self.training_path, mode='rb') as training_data:
