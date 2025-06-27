@@ -5,9 +5,10 @@ import tensorflow as tf
 
 
 class HyperparameterTuner:
-    def __init__(self, training_data, validation_data):
+    def __init__(self, training_data, validation_data, input_shape):
         self.training_data = training_data
         self.validation_data = validation_data
+        self.input_shape = input_shape
         self._configure_gpu()
 
     def _configure_gpu(self):
@@ -35,12 +36,14 @@ class HyperparameterTuner:
         dropout_rate = trial.suggest_float('dropout_rate', 0.2, 0.5)
         learning_rate = trial.suggest_float('learning_rate', 1e-5, 1e-2, log=True)
 
-        model.add(layers.Conv2D(num_filters, (filter_size, filter_size), activation='relu', input_shape=(64, 64, 3),
-                                padding='same'))
+        model.add(
+            layers.Conv2D(num_filters, (filter_size, filter_size), activation='relu', input_shape=self.input_shape,
+                          padding='same'))
         model.add(layers.MaxPooling2D((2, 2)))
 
         # Dynamisch Layer hinzufügen
-        current_input_shape = (64 // 2, 64 // 2)  # Initial input shape after the first max pooling
+        current_input_shape = (self.input_shape // 2,
+                               self.input_shape // 2)  # Initial input shape after the first max pooling
         print(f"Adding {num_conv_layers} convolutional layers with {num_filters} filters...")
         for i in range(num_conv_layers - 1):
             model.add(layers.Conv2D(num_filters, (filter_size, filter_size), activation='relu', padding='same'))
@@ -78,7 +81,8 @@ class HyperparameterTuner:
 
         loss, accuracy = model.evaluate(self.validation_data['X'], self.validation_data['Y'])
 
-        model.save(f'saved_model/optuna/best/model-{str(int(accuracy * 10000)).replace(".", "")}-{str(np.random.randint(0, 100000))}.keras')
+        model.save(
+            f'saved_model/optuna/best/model-{str(int(accuracy * 10000)).replace(".", "")}-{str(np.random.randint(0, 100000))}.keras')
 
         return loss
 
@@ -94,7 +98,7 @@ class HyperparameterTuner:
 
         model = models.Sequential()
 
-        model.add(layers.Input(shape=(64, 64, 3)))
+        model.add(layers.Input(shape=self.input_shape))
         model.add(layers.Conv2D(32, (3, 3), activation='relu', padding="same"))
 
         model.add(layers.Conv2D(32, (3, 3), activation='relu'))

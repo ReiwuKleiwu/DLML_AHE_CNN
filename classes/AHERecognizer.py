@@ -14,7 +14,7 @@ from classes.ModelVisualizer import ModelVisualizer
 
 class AHERecognizer:
     def __init__(self, training_path, valid_path, input_shape, num_classes):
-        self.data_loader = DataLoader(training_path, valid_path)
+        self.data_loader = DataLoader(training_path, valid_path, input_shape)
         self.training_rgb, self.valid_rgb, self.training_greyscale, self.valid_greyscale = self.data_loader.load_data()
         self.model_builder = ModelBuilder(input_shape, num_classes)
 

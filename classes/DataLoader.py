@@ -20,9 +20,10 @@ architectural_heritage_elements_classes_mapping = {
 }
 
 class DataLoader:
-    def __init__(self, training_path, valid_path):
+    def __init__(self, training_path, valid_path, input_shape):
         self.training_path = training_path
         self.valid_path = valid_path
+        self.input_shape = input_shape
 
     def load_images_from_folder(self, base_folder):
         images = []
@@ -35,7 +36,7 @@ class DataLoader:
                 img = Image.open(image_path)
                 img_array = np.array(img)
 
-                if img_array.shape != (64, 64, 3):
+                if img_array.shape != self.input_shape:
                     print(f"Fehler beim Bild {file}: {img_array.shape}")
                     continue
 
@@ -77,7 +78,7 @@ class DataLoader:
     def load_image_as_array(self, image_path):
         img = image.load_img(
             image_path,
-            target_size=(64, 64),
+            target_size=self.input_shape,
             interpolation='bilinear'
         )
         img_arr = image.img_to_array(img)
